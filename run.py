@@ -1,9 +1,19 @@
-from engine import ShellEngine
+import openai
+import os
 
-ShellEngine(
-    username='admin',
-    hostname='ubuntu-desktop',
-    header=(
-        'Welcome to Ubuntu 20.04.4 LTS (GNU/Linux 5.4.0-121-generic x86_64)'
-    ),
-).run_cli()
+CONTEXT_FILE = 'context.txt'
+PARAMETERS = {
+    'model': 'text-davinci-002',
+    'temperature': 0,
+}
+
+openai.api_key = os.getenv('OPENAI_API_KEY')
+
+with open(CONTEXT_FILE, 'r') as f:
+    text = f.read()
+
+response = openai.Completion.create(prompt=text, **PARAMETERS)
+text = response['choices'][0]['text']
+
+with open(CONTEXT_FILE, 'a') as f:
+    f.write(text)
