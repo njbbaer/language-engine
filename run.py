@@ -1,11 +1,10 @@
 import openai
 import os
-from ruamel.yaml import YAML
 from ruamel.yaml.scalarstring import LiteralScalarString
 
-openai.api_key = os.getenv('OPENAI_API_KEY')
+from yaml_config import yaml
 
-yaml = YAML()
+openai.api_key = os.getenv('OPENAI_API_KEY')
 
 
 class Context:
@@ -33,10 +32,10 @@ class Log:
         self.filepath = filepath
         self.load()
 
-    def record(self, prompt, completion, parameters):
+    def record(self, prompt, completion, params):
         self.log.append({
             'id': int(self.log[-1]['id']) + 1 if self.log else 0,
-            'parameters': parameters,
+            'params': params,
             'prompt': LiteralScalarString(prompt) or None,
             'completion': LiteralScalarString(completion) or None,
         })
@@ -54,22 +53,31 @@ class Log:
             yaml.dump(self.log, file)
 
 
+class Engine:
+    def __init__(self, context_file, log_file, params):
+        self.params = params
+        self.context = Context(context_file)
+        self.log = Log(log_file)
+
+    def run(self):
+        while True:
+            prompt = self.context.text
+            completion = complete_prompt(prompt, self.params)
+
+            self.context.append(completion)
+            self.context.save()
+
+            self.log.record(prompt, completion, self.params)
+            input()
+
+
+def complete_prompt(prompt, params):
+    response = openai.Completion.create(prompt=prompt, **params)
+    return response['choices'][0]['text'].strip()
+
+
 if __name__ == '__main__':
-    CONTEXT_FILE = 'context.txt'
-    LOG_FILE = 'log.yml'
-    PARAMETERS = {
+    Engine('context.txt', 'log.yml', {
         'model': 'text-davinci-002',
         'temperature': 0.0,
-    }
-
-    context = Context(CONTEXT_FILE)
-    log = Log(LOG_FILE)
-
-    prompt = context.text
-    response = openai.Completion.create(prompt=prompt, **PARAMETERS)
-    completion = response['choices'][0]['text'].strip()
-
-    context.append(completion)
-    context.save()
-
-    log.record(prompt, completion, PARAMETERS)
+    }).run()
