@@ -8,25 +8,25 @@ from src.yaml_config import yaml
 class Log:
     def __init__(self, filepath):
         self.filepath = filepath
-        self.load()
+        self._load()
 
-    def record(self, prompt, completion, params):
+    def record(self, completion):
         self.log.append({
             'id': int(self.log[-1]['id']) + 1 if self.log else 0,
             'timestamp': datetime.now(),
-            'params': params,
-            'prompt': LiteralScalarString(prompt) or None,
-            'completion': LiteralScalarString(completion) or None,
+            'params': completion.model_params,
+            'prompt': LiteralScalarString(completion.prompt_text) or None,
+            'completion': LiteralScalarString(completion.output_text) or None,
         })
-        self.save()
+        self._save()
 
-    def load(self):
+    def _load(self):
         if os.path.exists(self.filepath):
             with open(self.filepath, 'r') as file:
                 self.log = yaml.load(file.read())
         else:
             self.log = []
 
-    def save(self):
+    def _save(self):
         with open(self.filepath, 'w') as file:
             yaml.dump(self.log, file)
