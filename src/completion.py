@@ -1,4 +1,5 @@
 import os
+import requests
 
 API_KEY = os.getenv('OPENAI_API_KEY')
 
@@ -8,8 +9,8 @@ class Completion:
         self.prompt_text = prompt_text
         self.model_params = model_params
 
-    def perform(self, session):
-        response = session.post(
+    def perform(self):
+        response = requests.post(
             'https://api.openai.com/v1/completions',
             headers={'Authorization': f'Bearer {API_KEY}'},
             json={'prompt': self.prompt_text, **self.model_params},
