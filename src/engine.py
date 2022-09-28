@@ -2,14 +2,16 @@ from src.completion import Completion
 
 
 class Engine:
-    def __init__(self, context, log, model_params):
-        self.model_params = model_params
+    def __init__(self, context, log, config):
         self.context = context
         self.log = log
+        self.config = config
 
     def run(self):
         while True:
             self.context.load()
+            self.config.load()
+
             completion = self._perform_completion()
 
             self.context.append(completion.output_text)
@@ -20,8 +22,8 @@ class Engine:
 
     def _perform_completion(self):
         prompt = self.context.text
-        completion = Completion(prompt, self.model_params)
-        print('Making request with ~{} tokens...'.format(completion.num_prompt_tokens()))
+        completion = Completion(prompt, self.config)
+        print('Making request with ~{} tokens...'.format(completion.count_prompt_tokens()))
         completion.perform()
-        print('Received ~{} tokens.'.format(completion.num_output_tokens()))
+        print('Received ~{} tokens.'.format(completion.count_output_tokens()))
         return completion
