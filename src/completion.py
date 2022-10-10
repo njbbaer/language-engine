@@ -14,7 +14,7 @@ class Completion:
         response = requests.post(
             'https://api.openai.com/v1/completions',
             headers={'Authorization': f'Bearer {API_KEY}'},
-            json={'prompt': self.prompt_text, **self.config.get_model_params()},
+            json={'prompt': self.prompt_text, **self.config.model_params()},
         )
         self.output_text = response.json()['choices'][0]['text']
         self.log.record(self)

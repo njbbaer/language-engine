@@ -10,5 +10,15 @@ class Config:
         with open(self.filepath, 'r') as f:
             self.params = yaml.safe_load(f)
 
-    def get_model_params(self):
-        return self.params['model_params']
+    def model_params(self):
+        included_keys = [
+            'model',
+            'prompt',
+            'max_tokens',
+            'temperature',
+            'top_p',
+            'frequency_penalty',
+            'presence_penalty',
+            'stop'
+        ]
+        return dict([(i, self.params[i]) for i in self.params if i in set(included_keys)])

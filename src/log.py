@@ -14,7 +14,7 @@ class Log:
         self.log.append({
             'id': int(self.log[-1]['id']) + 1 if self.log else 0,
             'timestamp': datetime.now(),
-            'model_params': completion.config.get_model_params(),
+            'model_params': completion.config.model_params(),
             'prompt': LiteralScalarString(completion.prompt_text) or None,
             'completion': LiteralScalarString(completion.output_text) or None,
         })
