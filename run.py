@@ -1,11 +1,8 @@
-from src.engine import Engine
-from src.context import Context
-from src.log import Log
-from src.config import Config
+from src.engine import BasicEngine
 
 if __name__ == '__main__':
-    Engine(
-        context=Context('context.txt'),
-        log=Log('log.yml'),
-        config=Config('config.yml')
+    BasicEngine(
+        context_file='context.txt',
+        config_file='config.yml',
+        log_file='log.yml',
     ).run()
