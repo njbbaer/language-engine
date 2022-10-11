@@ -4,11 +4,17 @@ import yaml
 class Config:
     def __init__(self, filepath):
         self.filepath = filepath
-        self.load_file()
+        self.reload_file()
 
-    def load_file(self):
+    def reload_file(self):
         with open(self.filepath, 'r') as f:
             self.params = yaml.safe_load(f)
+
+    def __getitem__(self, key):
+        return self.params[key]
+
+    def __setitem__(self, key, value):
+        self.params[key] = value
 
     def model_params(self):
         included_keys = [

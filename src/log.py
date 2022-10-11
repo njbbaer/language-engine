@@ -2,7 +2,7 @@ import os
 from datetime import datetime
 
 from ruamel.yaml.scalarstring import LiteralScalarString
-from src.yaml_config import yaml
+from src.yaml_setup import yaml
 
 
 class Log:
@@ -10,13 +10,15 @@ class Log:
         self.filepath = filepath
         self._load()
 
-    def record(self, completion):
+    def record(self, config, completion):
         self.log.append({
             'id': int(self.log[-1]['id']) + 1 if self.log else 0,
             'timestamp': datetime.now(),
-            'model_params': completion.config.model_params(),
-            'prompt': LiteralScalarString(completion.prompt_text) or None,
-            'completion': LiteralScalarString(completion.output_text) or None,
+            'parameters': {
+                **config.model_params(),
+                'prompt': LiteralScalarString(config['prompt']),
+            },
+            'completion': LiteralScalarString(completion) or None,
         })
         self._save()
 
