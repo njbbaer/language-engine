@@ -10,17 +10,26 @@ class Log:
         self.filepath = filepath
         self._load()
 
-    def record(self, config, completion):
+    def record(self, parameters, completion):
+        self._load()
         self.log.append({
-            'id': int(self.log[-1]['id']) + 1 if self.log else 0,
+            'id': self._get_next_id(),
             'timestamp': datetime.now(),
-            'parameters': {
-                **config.model_params(),
-                'prompt': LiteralScalarString(config['prompt']),
-            },
-            'completion': LiteralScalarString(completion) or None,
+            'parameters': self._format_parameters(parameters),
+            'completion': self._format_string(completion),
         })
         self._save()
+
+    def _format_string(self, text):
+        return LiteralScalarString(text.strip()) or None
+
+    def _get_next_id(self):
+        return int(self.log[-1]['id']) + 1 if self.log else 0
+
+    def _format_parameters(self, parameters):
+        parameters = parameters.copy()
+        parameters['prompt'] = self._format_string(parameters['prompt'])
+        return parameters
 
     def _load(self):
         if os.path.exists(self.filepath):

@@ -16,7 +16,7 @@ class Config:
     def __setitem__(self, key, value):
         self.params[key] = value
 
-    def model_params(self):
+    def parameters(self):
         included_keys = [
             'model',
             'prompt',

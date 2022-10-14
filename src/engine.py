@@ -1,4 +1,4 @@
-from src.completion import complete
+from src.complete import complete
 from src.context import Context
 from src.log import Log
 from src.config import Config
@@ -20,9 +20,17 @@ class BasicEngine(Engine):
     def run(self):
         while True:
             self._reload_files()
-            self.config['prompt'] = self.context.text
-            print('Making request with ~{} tokens...'.format(count_tokens(self.config['prompt'])))
-            completion = complete(self.config, self.log)
+            parameters = {**self.config.parameters(), 'prompt': self.context.text}
+            print('Making request with ~{} tokens...'.format(count_tokens(parameters['prompt'])))
+            completion = complete(parameters, self.log)
             print('Received ~{} tokens.'.format(count_tokens(completion)))
             self.context.append(completion)
             input('Press enter to request completion...')
+
+
+class ChatEngine(Engine):
+    def run(self):
+        while True:
+            self._reload_files()
+            self.config['prompt'] = self.context.text
+            message = input()
