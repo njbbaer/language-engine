@@ -4,9 +4,9 @@ import yaml
 class Config:
     def __init__(self, filepath):
         self.filepath = filepath
-        self.reload_file()
+        self.load_file()
 
-    def reload_file(self):
+    def load_file(self):
         with open(self.filepath, 'r') as f:
             self.params = yaml.safe_load(f)
 
