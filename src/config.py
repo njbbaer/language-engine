@@ -4,9 +4,9 @@ import yaml
 class Config:
     def __init__(self, filepath):
         self.filepath = filepath
-        self.load_file()
+        self.load()
 
-    def load_file(self):
+    def load(self):
         with open(self.filepath, 'r') as f:
             self.params = yaml.safe_load(f)
 
@@ -27,4 +27,6 @@ class Config:
             'presence_penalty',
             'stop'
         ]
-        return dict([(i, self.params[i]) for i in self.params if i in set(included_keys)])
+        return dict([
+            (i, self.params[i]) for i in self.params if i in set(included_keys)
+        ])

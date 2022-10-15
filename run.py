@@ -1,7 +1,7 @@
-from src.engine import BasicEngine
+from src.engine import ChatEngine
 
 if __name__ == '__main__':
-    BasicEngine(
+    ChatEngine(
         context_file='context.txt',
         config_file='config.yml',
         log_file='log.yml',

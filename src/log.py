@@ -8,17 +8,17 @@ from src.yaml_setup import yaml
 class Log:
     def __init__(self, filepath):
         self.filepath = filepath
-        self._load_file()
+        self._load()
 
     def record(self, parameters, completion):
-        self._load_file()
+        self._load()
         self.log.append({
             'id': self._get_next_id(),
             'timestamp': datetime.now(),
             'parameters': self._format_parameters(parameters),
             'completion': self._format_string(completion),
         })
-        self._save_file()
+        self._save()
 
     def _format_string(self, text):
         return LiteralScalarString(text.strip()) or None
@@ -31,13 +31,13 @@ class Log:
         parameters['prompt'] = self._format_string(parameters['prompt'])
         return parameters
 
-    def _load_file(self):
+    def _load(self):
         if os.path.exists(self.filepath):
             with open(self.filepath, 'r') as file:
                 self.log = yaml.load(file.read())
         else:
             self.log = []
 
-    def _save_file(self):
+    def _save(self):
         with open(self.filepath, 'w') as file:
             yaml.dump(self.log, file)

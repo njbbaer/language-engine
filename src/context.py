@@ -4,20 +4,18 @@ import os
 class Context:
     def __init__(self, filepath):
         self.filepath = filepath
-        self.load_file()
+        self.load()
 
     def append(self, text, save=True):
         self.text += text
-        if save:
-            self.save_file()
 
-    def load_file(self):
+    def load(self):
         if os.path.exists(self.filepath):
             with open(self.filepath, 'r') as f:
                 self.text = f.read()
         else:
             self.text = ''
 
-    def save_file(self):
+    def save(self):
         with open(self.filepath, 'w') as f:
             f.write(self.text)
