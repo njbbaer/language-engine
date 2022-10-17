@@ -1,8 +1,9 @@
-from src.engine import ChatEngine
+from src.engine import ShellEngine
 
-if __name__ == '__main__':
-    ChatEngine(
-        context_file='context.txt',
-        config_file='config.yml',
-        log_file='log.yml',
-    ).run()
+ShellEngine(
+    username='admin',
+    hostname='ubuntu-desktop',
+    header=(
+        'Welcome to Ubuntu 20.04.4 LTS (GNU/Linux 5.4.0-121-generic x86_64)'
+    ),
+).run_loop()

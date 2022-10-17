@@ -6,7 +6,7 @@ class Context:
         self.filepath = filepath
         self.load()
 
-    def append(self, text, save=True):
+    def append(self, text):
         self.text += text
 
     def load(self):

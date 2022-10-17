@@ -1,55 +1,60 @@
-from src.complete import complete
-from src.context import Context
-from src.log import Log
-from src.config import Config
-from src.utils import count_tokens
+from src.prompt import ChatPrompt, ShellPrompt
 
 
-class Engine:
-    def __init__(self, context_file, config_file, log_file):
-        self.context = Context(context_file)
-        self.config = Config(config_file)
-        self.log = Log(log_file)
+class Engine():
 
-    def _load(self):
-        self.context.load()
-        self.config.load()
-
-    def _build_parameters(self, prompt):
-        return {
-            **self.config.parameters(),
-            'prompt': prompt
-        }
-
-
-class BasicEngine(Engine):
-    def run(self):
+    def run_loop(self):
         while True:
-            self._load()
-            parameters = self._build_parameters(self.context.text)
-            print('Making request with ~{} tokens...'.format(count_tokens(parameters['prompt'])))
-            completion = complete(parameters, self.log)
-            print('Received ~{} tokens.'.format(count_tokens(completion)))
-            self.context.append(completion)
-            self.context.save()
-            input('Press enter to request completion...')
+            self.run()
 
 
-class ChatEngine(Engine):
+class ChatEngine():
+    def __init__(self, input_name, output_name, header, params={}):
+        self.prompt = ChatPrompt(header)
+        self.input_name = input_name
+        self.output_name = output_name
+        self.params = params
+
     def run(self):
-        while True:
-            input_text = input(f'{self.config["human_name"]}: ')
-            self._load()
-            prompt = self._build_prompt(input_text)
-            parameters = self._build_parameters(prompt)
-            completion = complete(parameters, self.log).strip()
-            print(f'{self.config["bot_name"]}: {completion}')
-            self.context.text = f'{prompt} {completion}'
-            self.context.save()
+        self.prompt.append_newline()
+        print(self.input_name, end=': ')
+        self.prompt.append_message(self.input_name, input())
+        self.prompt.append_message(self.output_name)
+        print(self.output_name, end=': ')
+        response = self.prompt.complete_message(self.params)
+        print(response)
 
-    def _build_prompt(self, input_text):
-        return (
-            f'{self.context.text}\n'
-            f'{self.config["human_name"]}: {input_text}\n'
-            f'{self.config["bot_name"]}:'
-        )
+
+class ShellEngine():
+    def __init__(self, username, hostname, header, params=[{}, {}]):
+        self.prompt = ShellPrompt(header)
+        self.username = username
+        self.hostname = hostname
+        self.params = [
+            {
+                'model': 'text-curie-001',
+                'stop': '$',
+                'max_tokens': 64,
+                **params[0],
+            },
+            {
+                'stop': f'{username}@{hostname}',
+                'max_tokens': 256,
+                **params[1],
+            }
+        ]
+        self.prompt.append(f'\n{self.username}@{self.hostname}:~$ pwd')
+        self.prompt.append(f'\n/home/{self.username}')
+
+    def run(self):
+        self.prompt.append_terminal_prompt(self.username, self.hostname)
+        self.prompt.complete_path(self.params[0])
+        print(self.prompt.last_line(), end='')
+        self.prompt.append(input())
+        output = self.prompt.complete_command({
+            **self.params[1],
+            'stop': f'{self.username}@{self.hostname}'
+        })
+        print(output, end='')
+        if output:
+            print()
